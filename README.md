@@ -1,50 +1,95 @@
-========================================================================  
-  Google AI Pro (5 TB) 零成本两年 (US$0.00 -> 24个月) 全自动控制台  
-========================================================================  
-  
+# Google AI Pro (5 TB) 2-Year Zero-Cost Automation Console
 
-声明：该项目并非本人开发，仅作为圈内开源供大家分析学习使用  
-Disclaimer: I did not develop this project; it is provided as an open-source resource for the community to analyze and learn from.  
+> **English translation and multi-browser enhancement of the original [worldonlyu/Google_AI_Pro_2Year_ZeroCost_Auto](https://github.com/worldonlyu/Google_AI_Pro_2Year_ZeroCost_Auto).**  
+> **Disclaimer:** This project is provided for research, testing, and educational purposes. Ensure compliance with applicable terms of service.
 
-【一、运行环境要求】
-1. Windows 10 / 11 系统
-2. 已安装 Google Chrome 浏览器（默认路径即可）
-3. 已安装 Python 3.10 或更高版本（安装时勾选 Add Python to PATH）
-4. 网络环境：本机开启美区（US）代理，或在控制台左侧填写代理模板
+---
 
-【二、快速启动步骤】
-1. 首次使用请双击运行：【1_首次运行_安装依赖并启动.bat】
-2. 之后日常使用直接双击：【2_启动控制台.bat】
-3. 浏览器会自动打开控制台页面：http://127.0.0.1:8765
+## 🌟 Overview
 
-【三、自定义填写支付卡 & 跑号说明】
-1. 填写支付卡（必填）：
-   - 在网页左侧【全局配置与内联免税绑卡】区域，填入你自己的 Visa 或 Mastercard 外币卡：
-     * 卡号（16位数字）
-     * 有效期（月 / 年，如 08 / 29）
-     * 安全码（3位 CVC）
-     * 持卡人英文姓名
-     * 免税邮编默认已填好 97201（美国俄勒冈免税州），无需修改
-   - 填写后点击【💾 保存配置】。
-   - 注：脚本内置严格 0 元消费保护，仅在结账弹窗确认为 US$0.00 时才会点击订阅，全程 0 扣费。
+An automated pipeline and WebUI console for stacking Google AI Pro (5 TB) subscription offers to achieve a 24-month (2-year) duration at **US$0.00 zero cost**, with automatic Google Play cancellation to prevent future recurring charges.
 
-2. 批量导入 Google 账号：
-   - 在网页右侧【批量放号导入区】粘贴账号（每行一个），支持以下任意格式：
-     * 邮箱----密码----辅助邮箱
-     * 邮箱----密码----辅助邮箱----2FA密钥
-     * 邮箱----密码----2FA密钥
-   - 点击【➕ 一键导入账号列表】。
+### Features
 
-3. 开始全自动执行：
-   - 点击单个账号右侧的【▶ 执行】或顶部的【▶ 批量全自动执行】。
-   - 脚本会自动完成：
-     Step 1: 自动登录 Google 并通过辅助邮箱 / 2FA 验证
-     Step 2: 内联免税绑卡 + 首层 12 个月免费包 (US$0.00)
-     Step 3: 叠加二层 6 个月免费包 (US$0.00 -> 18个月)
-     Step 4: 叠加三层 6 个月免费包 (US$0.00 -> 24个月封顶)
-     Step 5: 自动前往 Google Play 取消自动续订，锁死 2 年到期权益并截图验真
+- 🌐 **Full English WebUI & Real-time Logs**: Clean dark dashboard with interactive controls, status tracking, and live CDP/network terminal logs.
+- 🔄 **5-Step Automated Stacking Pipeline**:
+  - **Step 1**: Login & Security Challenge Bypass (supports credentials, recovery email, and 2FA TOTP).
+  - **Step 2**: Layer 1 — 12M Pro (5 TB) + YouTube Trial at US$0.00 (with inline tax-free card binding).
+  - **Step 3**: Layer 2 — 6M Stacking (S25 Pro 6M + Mode 5) extending to 18 months at US$0.00.
+  - **Step 4**: Layer 3 — 6M Cap (Pixel 6M + Mode 5) capping at 24 months (2028 expiration) at US$0.00.
+  - **Step 5**: Google Play auto-renewal cancellation to lock in the 2-year expiration without recurring charges, plus screenshot verification.
+- 🛡️ **Zero-Cost Protection**: Strictly validates that checkout modals show **US$0.00 / Free** before confirming subscriptions; intercepts and blocks any non-zero charges.
+- 🚀 **Multi-Browser Kernel Support**: Auto-detects Google Chrome, Brave Browser, Microsoft Edge, and Playwright Chromium across standard paths, PATH, and Windows Registry.
+- 📦 **Bulk Account Management**: Import accounts using any delimiter (`----`, `/`, `|`, whitespace); view and copy TOTP codes in real time.
+- 🔒 **Privacy & Isolation**: Runs accounts in isolated browser profiles with optional dedicated residential proxy tunnels.
 
+---
 
-# 卡网：https://faka.cdkey.si
-# 博客：https://blog.caowo.de
-# TG群：@Hello_Florence
+## 📋 Prerequisites & System Requirements
+
+1. **Operating System**: Windows 10 / 11, Linux, or macOS.
+2. **Browser**: Google Chrome, Brave Browser, or Microsoft Edge installed.
+3. **Python**: Python 3.10 or higher.
+4. **Network**: US-based IP address (residential/proxy or direct US connection) required for US tax-free $0.00 Google One promotional offers.
+
+---
+
+## 🚀 Quick Start Guide
+
+### Option 1: Using Batch Scripts (Windows)
+
+1. **First-Time Setup**:
+   Double-click `1_First_Run_Install_Dependencies.bat` (or `1_首次运行_安装依赖并启动.bat`) to install requirements and download browser components.
+2. **Daily Use**:
+   Double-click `2_Start_Console.bat` (or `2_启动控制台.bat`) to launch the local web console.
+3. **Open Console**:
+   The web UI will open automatically at [http://127.0.0.1:8765](http://127.0.0.1:8765).
+
+### Option 2: Command Line (Cross-Platform)
+
+```bash
+# 1. Clone repository
+git clone https://github.com/kaiser62/Google_AI_Pro_2Year_ZeroCost_Auto.git
+cd Google_AI_Pro_2Year_ZeroCost_Auto
+
+# 2. Install dependencies
+pip install -r requirements.txt
+playwright install chromium
+
+# 3. Launch application
+python app.py
+```
+
+Open [http://127.0.0.1:8765](http://127.0.0.1:8765) in your browser.
+
+---
+
+## ⚙️ Configuration & Usage
+
+### 1. Payment Card Setup
+In the **Global Settings** card on the left:
+- Enter your Visa or Mastercard details (Card Number, Expiration MM/YY, CVC, Cardholder Name).
+- *Note:* Cards are used solely for Google $0.00 trial authorization verification; the system will not proceed if the checkout amount is greater than $0.00.
+- The billing address defaults to Oregon tax-free ZIP `97201` (`700 SW 5th Ave, Portland, OR`).
+- Click **Save Settings**.
+
+### 2. Import Accounts
+In the **Bulk Account Import** card on the right, paste accounts (one per line). Supported formats include:
+```text
+email----password----recovery_email
+email----password----recovery_email----2fa_secret
+email----password----2fa_secret
+email/password/recovery_email/2fa_secret
+```
+Click **Import Accounts**.
+
+### 3. Execution
+- Click **▶ Start** next to any account to execute the individual pipeline, or use **▶ Run All Pending Accounts** for batch execution.
+- If a card-binding reCAPTCHA appears, a prompt in the web UI will notify you to solve it, after which the pipeline resumes automatically.
+
+---
+
+## 📄 License & Attribution
+
+- Upstream Repository: [worldonlyu/Google_AI_Pro_2Year_ZeroCost_Auto](https://github.com/worldonlyu/Google_AI_Pro_2Year_ZeroCost_Auto)
+- Translated and enhanced with multi-browser detection by [kaiser62](https://github.com/kaiser62).

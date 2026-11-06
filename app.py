@@ -19,6 +19,7 @@ from automation_engine import (
     resolve_account_proxy,
     parse_proxy_string,
     CHROME_PATH,
+    _find_chrome_path,
     BASE_DIR,
     SCREENSHOTS_DIR,
 )
@@ -28,12 +29,12 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 os.makedirs(TEMPLATES_DIR, exist_ok=True)
 os.makedirs(SCREENSHOTS_DIR, exist_ok=True)
 
-app = FastAPI(title="Google AI Pro (5 TB) 零成本两年全自动控制台")
+app = FastAPI(title="Google AI Pro (5 TB) 2-Year Zero-Cost Automation Console")
 app.mount("/screenshots", StaticFiles(directory=SCREENSHOTS_DIR), name="screenshots")
 
 # Global runtime state
 LOGS: List[str] = [
-    f"[{time.strftime('%H:%M:%S')}] [SYSTEM] 🚀 Google AI Pro (5 TB) 零成本两年 (US$0.00 -> 2028-10) 全自动控制台已就绪！"
+    f"[{time.strftime('%H:%M:%S')}] [SYSTEM] 🚀 Google AI Pro (5 TB) 2-Year Zero-Cost (US$0.00 -> 2028-10) Automation Console Ready!"
 ]
 ACTIVE_TASKS: Dict[str, GoogleUltraAutomator] = {}
 BATCH_RUNNING: bool = False
@@ -174,12 +175,12 @@ async def test_proxy(req: ProxyTestReq):
         city = data.get("city", "")
         org = data.get("connection", {}).get("org", "")
         flag = "🇧🇴" if cc == "BO" else ("🇹🇷" if cc == "TR" else "🌐")
-        bal_str = f" | FloppyData 剩余流量: {bal_gb} GB" if bal_gb is not None else ""
-        msg = f"{flag} 连通成功！出口 IP: {ip} ({country} · {city} | {org}){bal_str}"
+        bal_str = f" | FloppyData Remaining Traffic: {bal_gb} GB" if bal_gb is not None else ""
+        msg = f"{flag} Connected successfully! Egress IP: {ip} ({country} · {city} | {org}){bal_str}"
         append_log(f"[{time.strftime('%H:%M:%S')}] [PROXY] ✅ {msg}")
         return {"ok": True, "message": msg, "ip": ip, "country_code": cc, "balance_gb": bal_gb}
     except Exception as e:
-        err = f"代理测试失败: {e}"
+        err = f"Proxy test failed: {e}"
         append_log(f"[{time.strftime('%H:%M:%S')}] [PROXY] ❌ {err}")
         return {"ok": False, "message": err}
 
@@ -263,7 +264,7 @@ async def import_accounts(req: ImportAccountsReq):
                 "ip_info": "",
                 "status": "pending",
                 "current_step": 0,
-                "step_message": "新导入账号（待执行）",
+                "step_message": "Newly imported account (Pending)",
                 "expiry_date": "-",
                 "last_screenshot": "",
             }
@@ -273,18 +274,18 @@ async def import_accounts(req: ImportAccountsReq):
 
     cfg["accounts"] = existing
     save_config(cfg)
-    append_log(f"[{time.strftime('%H:%M:%S')}] [IMPORT] ✅ 成功导入/更新 {added} 个账号（当前共 {len(existing)} 个账号）")
+    append_log(f"[{time.strftime('%H:%M:%S')}] [IMPORT] ✅ Successfully imported/updated {added} accounts (Total: {len(existing)})")
     return {"ok": True, "added": added, "total": len(existing)}
 
 
 @app.post("/api/accounts/delete")
 async def delete_account(req: AccountActionReq):
     if req.account_id in ACTIVE_TASKS:
-        raise HTTPException(status_code=400, detail="该账号正在运行中，请先停止任务")
+        raise HTTPException(status_code=400, detail="Account is currently running, please stop it first")
     cfg = load_config()
     cfg["accounts"] = [a for a in cfg.get("accounts", []) if a["id"] != req.account_id]
     save_config(cfg)
-    append_log(f"[{time.strftime('%H:%M:%S')}] [ACCOUNT] 🗑️ 已移除账号 {req.account_id}")
+    append_log(f"[{time.strftime('%H:%M:%S')}] [ACCOUNT] 🗑️ Removed account {req.account_id}")
     return {"ok": True}
 
 
@@ -295,10 +296,10 @@ async def reset_account(req: AccountActionReq):
         if a["id"] == req.account_id:
             a["status"] = "pending"
             a["current_step"] = 0
-            a["step_message"] = "已重置状态（待执行）"
+            a["step_message"] = "Status reset (Pending)"
             break
     save_config(cfg)
-    append_log(f"[{time.strftime('%H:%M:%S')}] [ACCOUNT] 🔄 已重置账号 {req.account_id} 状态为待执行")
+    append_log(f"[{time.strftime('%H:%M:%S')}] [ACCOUNT] 🔄 Reset account {req.account_id} status to Pending")
     return {"ok": True}
 
 
@@ -337,6 +338,9 @@ async def _run_account_worker(account_id: str, start_step: int = 1, port: int = 
     ACTIVE_TASKS[account_id] = automator
     try:
         await automator.run_pipeline(start_step=start_step)
+    except Exception as e:
+        append_log(f"[{time.strftime('%H:%M:%S')}] [{account_id}] ❌ Task terminated unexpectedly: {e}")
+        on_state_patch({"status": "error", "step_message": f"❌ Task error: {e}"})
     finally:
         ACTIVE_TASKS.pop(account_id, None)
 
@@ -344,7 +348,7 @@ async def _run_account_worker(account_id: str, start_step: int = 1, port: int = 
 @app.post("/api/run/single")
 async def run_single(req: RunSingleReq):
     if req.account_id in ACTIVE_TASKS:
-        raise HTTPException(status_code=400, detail="该账号已经在运行中")
+        raise HTTPException(status_code=400, detail="This account is already running")
     port = 9320 + (len(ACTIVE_TASKS) % 10)
     asyncio.create_task(_run_account_worker(req.account_id, start_step=req.start_step, port=port))
     return {"ok": True}
@@ -354,7 +358,7 @@ async def run_single(req: RunSingleReq):
 async def run_batch(req: RunBatchReq):
     global BATCH_RUNNING, STOP_BATCH
     if BATCH_RUNNING:
-        raise HTTPException(status_code=400, detail="批量队列已经在运行中")
+        raise HTTPException(status_code=400, detail="Batch queue is already running")
 
     cfg = load_config()
     if req.account_ids:
@@ -363,23 +367,23 @@ async def run_batch(req: RunBatchReq):
         queue_ids = [a["id"] for a in cfg.get("accounts", []) if a.get("status") != "completed"]
 
     if not queue_ids:
-        raise HTTPException(status_code=400, detail="没有待执行的账号（已完成的账号如需重跑请先点重置）")
+        raise HTTPException(status_code=400, detail="No pending accounts in queue (reset completed accounts first if you want to rerun)")
 
     async def _batch_runner():
         global BATCH_RUNNING, STOP_BATCH
         BATCH_RUNNING = True
         STOP_BATCH = False
-        append_log(f"[{time.strftime('%H:%M:%S')}] [BATCH] 🚀 开始批量一条龙执行队列: {queue_ids} (起始步骤: Step {req.start_step})")
+        append_log(f"[{time.strftime('%H:%M:%S')}] [BATCH] 🚀 Starting batch execution queue: {queue_ids} (Start step: Step {req.start_step})")
         try:
             for idx, aid in enumerate(queue_ids):
                 if STOP_BATCH:
-                    append_log(f"[{time.strftime('%H:%M:%S')}] [BATCH] ⏹ 批量队列已按用户要求停止")
+                    append_log(f"[{time.strftime('%H:%M:%S')}] [BATCH] ⏹ Batch queue stopped by user")
                     break
                 await _run_account_worker(aid, start_step=req.start_step, port=9330 + (idx % 5))
                 await asyncio.sleep(2)
         finally:
             BATCH_RUNNING = False
-            append_log(f"[{time.strftime('%H:%M:%S')}] [BATCH] 🏁 批量执行队列已结束")
+            append_log(f"[{time.strftime('%H:%M:%S')}] [BATCH] 🏁 Batch execution queue finished")
 
     asyncio.create_task(_batch_runner())
     return {"ok": True, "queued": queue_ids}
@@ -391,11 +395,11 @@ async def stop_all(req: Optional[AccountActionReq] = None):
     STOP_BATCH = True
     if req and req.account_id and req.account_id in ACTIVE_TASKS:
         ACTIVE_TASKS[req.account_id].stop_requested = True
-        append_log(f"[{time.strftime('%H:%M:%S')}] [STOP] ⏹ 正在停止账号 {req.account_id}...")
+        append_log(f"[{time.strftime('%H:%M:%S')}] [STOP] ⏹ Stopping account {req.account_id}...")
     else:
         for aid, task in list(ACTIVE_TASKS.items()):
             task.stop_requested = True
-        append_log(f"[{time.strftime('%H:%M:%S')}] [STOP] ⏹ 已发送全局停止指令")
+        append_log(f"[{time.strftime('%H:%M:%S')}] [STOP] ⏹ Global stop signal sent")
     return {"ok": True}
 
 
@@ -476,7 +480,7 @@ async def open_browser_manual(req: AccountActionReq):
     cfg = load_config()
     target_acc = next((a for a in cfg.get("accounts", []) if a["id"] == req.account_id), None)
     if not target_acc:
-        raise HTTPException(status_code=404, detail="账号不存在")
+        raise HTTPException(status_code=404, detail="Account not found")
 
     user_data_dir = get_profile_dir(target_acc["id"], target_acc["email"])
     target_region = cfg.get("target_region", "US")
@@ -484,8 +488,12 @@ async def open_browser_manual(req: AccountActionReq):
     resolved_proxy = resolve_account_proxy(target_acc, target_region, proxy_template)
     parsed_proxy = parse_proxy_string(resolved_proxy)
 
+    browser_exe = CHROME_PATH or _find_chrome_path()
+    if not browser_exe or not os.path.exists(browser_exe):
+        raise HTTPException(status_code=400, detail="No usable Chrome / Chromium browser found (Checked Chrome, Brave, Edge)")
+
     chrome_args = [
-        CHROME_PATH,
+        browser_exe,
         f"--user-data-dir={user_data_dir}",
         "--no-first-run",
         "--no-default-browser-check",
@@ -520,7 +528,7 @@ async def open_browser_manual(req: AccountActionReq):
     )
     _launch_on_interactive_desktop(chrome_args)
     append_log(
-        f"[{time.strftime('%H:%M:%S')}] [BROWSER] 🌐 已为您手动打开 [{target_acc['id']}] ({target_acc['email']}) 的专属 Chrome 窗口"
+        f"[{time.strftime('%H:%M:%S')}] [BROWSER] 🌐 Launched isolated browser window for [{target_acc['id']}] ({target_acc['email']})"
     )
     return {"ok": True}
 

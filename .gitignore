@@ -1,0 +1,6 @@
+.scratch/
+config.local.json
+__pycache__/
+*.pyc
+profiles/
+screenshots/

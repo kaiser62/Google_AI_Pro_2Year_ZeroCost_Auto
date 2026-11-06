@@ -1,11 +1,10 @@
-@echo off
-chcp 936 >nul
-title Google AI Pro (5 TB) 零成本两年全自动控制台
-cd /d "%~dp0"
-echo ======================================================================
-echo   正在启动 Google AI Pro (5 TB) 零成本两年全自动控制台...
-echo   控制台地址: http://127.0.0.1:8765
-echo ======================================================================
-start "" "http://127.0.0.1:8765"
-python app.py
-pause
+@echo off
+chcp 65001 >nul
+title Google AI Pro 2-Year Zero-Cost Automation Console
+echo ======================================================================
+echo   Launching Google AI Pro (5 TB) 2-Year Zero-Cost Automation Console...
+echo   WebUI Address: http://127.0.0.1:8765
+echo ======================================================================
+start "" "http://127.0.0.1:8765"
+python app.py
+pause
